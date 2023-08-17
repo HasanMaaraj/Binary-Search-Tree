@@ -2,9 +2,9 @@ const treeFactory = array => {
     let root = null;
     const nodeFactory = () => {
         return {
+            data: null,
             leftNode: null,
             rightNode: null,
-            data: null,
 
         }
     }
@@ -119,8 +119,13 @@ const treeFactory = array => {
     removeChild(root, data);
     }
 
-
-    return {prettyPrint, insert, remove, root}
+    const find = (data, node=root) => {
+        if (data === node.data) return node;
+        else if (data > node.data) return find(data, node.rightNode)
+        else if (data < node.data) return find(data, node.leftNode)
+        return false;
+    }
+    return {prettyPrint, insert, remove, find, root}
 
 }
 
@@ -128,5 +133,4 @@ let myTree = treeFactory([1,2,3,56,85,3,65]);
 myTree.prettyPrint(myTree.root)
 myTree.insert(7)
 myTree.prettyPrint(myTree.root)
-myTree.remove(7)
-myTree.prettyPrint(myTree.root)
+console.log(myTree.find(65))
