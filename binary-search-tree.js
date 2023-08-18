@@ -150,7 +150,23 @@ const treeFactory = array => {
         if (postOrderList.length > 0) return postOrderList
     }
 
-    return {prettyPrint, insert, remove, find, preOrder, inOrder, postOrder, root}
+    const height = (node, count=0) => {
+        if (!node.leftNode && !node.rightNode) return count;
+        let leftHeight = 0;
+        let rightHeight = 0;
+        if (node.leftNode) leftHeight = height(node.leftNode, count+1)
+        if (node.rightNode) rightHeight = height(node.rightNode, count+1)
+        return leftHeight > rightHeight? leftHeight:rightHeight
+
+    }
+
+    const depth = (node, root=root, count=0) => {
+        if (node === root) return count;
+        if (node.data > root.data && root.rightNode) return depth(node, root.rightNode, count+1)
+        else if (root.leftNode) return depth(node, root.leftNode, count+1)
+    }
+
+    return {prettyPrint, insert, remove, find, preOrder, inOrder, postOrder, height, depth, root}
 
 }
 
