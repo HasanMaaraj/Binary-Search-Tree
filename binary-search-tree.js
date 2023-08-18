@@ -125,7 +125,32 @@ const treeFactory = array => {
         else if (data < node.data) return find(data, node.leftNode)
         return false;
     }
-    return {prettyPrint, insert, remove, find, root}
+
+    const preOrder = (func=null, node=root, preOrderList=[]) => {
+        func? func(node):preOrderList.push(node)
+        if (node.leftNode) preOrder(func, node.leftNode)
+        if (node.rightNode) preOrder(func, node.rightNode)
+
+        if (preOrderList.length > 0) return preOrderList
+    }
+
+    const inOrder = (func=null, node=root, inOrderList=[]) => {
+        if (node.leftNode) inOrder(func, node.leftNode)
+        func? func(node):inOrderList.push(node)
+        if (node.rightNode) inOrder(func, node.rightNode)
+
+        if (inOrderList.length > 0) return inOrderList
+    }
+
+    const postOrder = (func=null, node=root, postOrderList=[]) => {
+        if (node.leftNode) postOrder(func, node.leftNode)
+        if (node.rightNode) postOrder(func, node.rightNode)
+        func? func(node):postOrderList.push(node)
+
+        if (postOrderList.length > 0) return postOrderList
+    }
+
+    return {prettyPrint, insert, remove, find, preOrder, inOrder, postOrder, root}
 
 }
 
