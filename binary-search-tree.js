@@ -9,26 +9,24 @@ const treeFactory = array => {
         }
     }
     
-    const builTree = (array => {
-        let sortedArray = array.sort();
-    
-        let finalArray =  sortedArray.filter((item, index) => array.indexOf(item) === index);
-        
-        const setRoot =(array, start=0, end=array.length-1) => {
+    const buildTree = (array, start=0, end=array.length-1) => {
         if (start>end) return null;
         let mid = Math.floor((start+end)/2);
         let newRoot = nodeFactory();
-        newRoot.data = array[mid]
-        newRoot.leftNode = setRoot(array, start, mid-1)
-        newRoot.rightNode = setRoot(array, mid+1, end)
+        newRoot.data = array[mid];
+        newRoot.leftNode = buildTree(array, start, mid-1);
+        newRoot.rightNode = buildTree(array, mid+1, end);
         return newRoot
-        }
+    }
 
-        root = setRoot(finalArray);
+    if (array) {
+        let sortedArray = array.sort();
+        let finalArray =  sortedArray.filter((item, index) => array.indexOf(item) === index);
+        root = buildTree(finalArray)
+    } 
+  
         
-    })(array);
-        
-    const prettyPrint = (node, prefix = "", isLeft = true) => {
+    const prettyPrint = (node=root, prefix = "", isLeft = true) => {
         if (node === null) {
             return;
         }
@@ -42,8 +40,7 @@ const treeFactory = array => {
     };
 
 
-    const insert = (data) => {
-        const appendChild = (node, data) => {
+    const insert = (data, node=root) => {
             if (data < node.data) {
                 if (!node.leftNode) {
                     let newNode = nodeFactory();
@@ -51,7 +48,7 @@ const treeFactory = array => {
                     node.leftNode = newNode
                 }
                 else {
-                    appendChild(node.leftNode, data)
+                    insert(data, node.leftNode)
                 }
             }
             if (data > node.data) {
@@ -61,16 +58,13 @@ const treeFactory = array => {
                     node.rightNode = newNode
                 }
                 else {
-                    appendChild(node.rightNode, data)
+                    insert(data, node.rightNode)
                 }
             }
 
         }
-        appendChild(root, data);
-    }
 
-    const remove = (data) => {
-        const removeChild = (node, data) => {
+    const remove = (data, node=root) => {
           if (!node.leftNode && !node.rightNode) return;
           let isDeleted = false;
           if (node.rightNode) {
@@ -112,11 +106,9 @@ const treeFactory = array => {
             }
         }
         if (!isDeleted) {
-            if (node.data < data) removeChild(node.rightNode, data)
-            else if (node.data > data) removeChild(node.leftNode, data)
+            if (node.data < data) remove(data, node.rightNode,)
+            else if (node.data > data) remove(data, node.leftNode)
         }
-    }
-    removeChild(root, data);
     }
 
     const find = (data, node=root) => {
@@ -128,23 +120,23 @@ const treeFactory = array => {
 
     const preOrder = (func=null, node=root, preOrderList=[]) => {
         func? func(node):preOrderList.push(node)
-        if (node.leftNode) preOrder(func, node.leftNode)
-        if (node.rightNode) preOrder(func, node.rightNode)
+        if (node.leftNode) preOrder(func, node.leftNode, preOrderList)
+        if (node.rightNode) preOrder(func, node.rightNode, preOrderList)
 
         if (preOrderList.length > 0) return preOrderList
     }
 
     const inOrder = (func=null, node=root, inOrderList=[]) => {
-        if (node.leftNode) inOrder(func, node.leftNode)
-        func? func(node):inOrderList.push(node)
-        if (node.rightNode) inOrder(func, node.rightNode)
+        if (node.leftNode) inOrder(func, node.leftNode, inOrderList)
+        func ? func(node):inOrderList.push(node)
+        if (node.rightNode) inOrder(func, node.rightNode, inOrderList)
 
         if (inOrderList.length > 0) return inOrderList
     }
 
     const postOrder = (func=null, node=root, postOrderList=[]) => {
-        if (node.leftNode) postOrder(func, node.leftNode)
-        if (node.rightNode) postOrder(func, node.rightNode)
+        if (node.leftNode) postOrder(func, node.leftNode, postOrderList)
+        if (node.rightNode) postOrder(func, node.rightNode, postOrderList)
         func? func(node):postOrderList.push(node)
 
         if (postOrderList.length > 0) return postOrderList
@@ -156,7 +148,7 @@ const treeFactory = array => {
         let rightHeight = 0;
         if (node.leftNode) leftHeight = height(node.leftNode, count+1)
         if (node.rightNode) rightHeight = height(node.rightNode, count+1)
-        return leftHeight > rightHeight? leftHeight:rightHeight
+        return leftHeight > rightHeight ? leftHeight:rightHeight
 
     }
 
@@ -166,12 +158,34 @@ const treeFactory = array => {
         else if (root.leftNode) return depth(node, root.leftNode, count+1)
     }
 
-    return {prettyPrint, insert, remove, find, preOrder, inOrder, postOrder, height, depth, root}
+    const isBalanced = (node=root) => {
+        if (!node || !node.leftNode && !node.rightNode) return true
+        let leftHeight = node.leftNode ? height(node.leftNode):0;
+        let rightHeight = node.rightNode ? height(node.rightNode):0;
+        if (Math.abs(leftHeight - rightHeight) > 1) {
+            return false
+        }
+        return isBalanced(node.leftNode) && isBalanced(node.rightNode);
+    }
+
+    const rebalance = node => {
+        let rebalanceArray = inOrder(node).map(nodeObject => nodeObject.data);
+        root = buildTree(rebalanceArray);
+    }
+
+    return {prettyPrint, insert, remove, find, preOrder, inOrder, postOrder, height, depth, isBalanced, rebalance, root}
 
 }
 
 let myTree = treeFactory([1,2,3,56,85,3,65]);
-myTree.prettyPrint(myTree.root)
+myTree.prettyPrint()
+console.log('is balanced', myTree.isBalanced())
 myTree.insert(7)
-myTree.prettyPrint(myTree.root)
-console.log(myTree.find(65))
+myTree.insert(8)
+myTree.insert(9)
+myTree.insert(12)
+myTree.prettyPrint()
+console.log('is balanced', myTree.isBalanced())
+console.log(myTree.inOrder())
+myTree.rebalance()
+myTree.prettyPrint()
