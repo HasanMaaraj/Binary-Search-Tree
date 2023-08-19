@@ -118,6 +118,22 @@ const treeFactory = array => {
         return false;
     }
 
+    const levelOrder = (func) => {
+
+        let currentNode = null;
+        let queue = [root];
+        let levelOrderArray = [];
+        // if (node === null) return;
+        while (queue.length > 0){
+            currentNode = queue.shift()
+            if (currentNode.leftNode) queue.push(currentNode.leftNode);
+            if (currentNode.rightNode) queue.push(currentNode.rightNode);
+            func ? func(currentNode):levelOrderArray.push(currentNode.data)
+        }
+
+        if (levelOrderArray.length > 0) return levelOrderArray;
+    }
+
     const preOrder = (func=null, node=root, preOrderList=[]) => {
         func? func(node):preOrderList.push(node)
         if (node.leftNode) preOrder(func, node.leftNode, preOrderList)
@@ -173,19 +189,5 @@ const treeFactory = array => {
         root = buildTree(rebalanceArray);
     }
 
-    return {prettyPrint, insert, remove, find, preOrder, inOrder, postOrder, height, depth, isBalanced, rebalance, root}
-
+    return {prettyPrint, insert, remove, find, levelOrder, preOrder, inOrder, postOrder, height, depth, isBalanced, rebalance}
 }
-
-let myTree = treeFactory([1,2,3,56,85,3,65]);
-myTree.prettyPrint()
-console.log('is balanced', myTree.isBalanced())
-myTree.insert(7)
-myTree.insert(8)
-myTree.insert(9)
-myTree.insert(12)
-myTree.prettyPrint()
-console.log('is balanced', myTree.isBalanced())
-console.log(myTree.inOrder())
-myTree.rebalance()
-myTree.prettyPrint()
